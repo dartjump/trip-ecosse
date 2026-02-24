@@ -2,1056 +2,802 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland Roadtrip 2026</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1f17">
+<title>Scotland 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=SF+Pro+Display:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
+/* ─── RESET & VARS ─── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
   --green: #1a3a2a;
+  --green2: #2d6b47;
   --gold: #c9a84c;
-  --cream: #f4efe6;
-  --mist: #7a9a8a;
+  --cream: #f5f0e8;
   --dark: #0d1f17;
-  --light: #e8f0eb;
-  --red: #8b3a1a;
-  --blue: #1a4a6b;
+  --mist: #8aaa96;
+  --card-bg: #ffffff;
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bot: env(safe-area-inset-bottom, 34px);
+  --tab-h: calc(60px + var(--safe-bot));
+  --header-h: calc(56px + var(--safe-top));
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; overflow: hidden; margin: 0; }
-body { font-family: 'Lato', sans-serif; background: var(--cream); color: var(--dark); }
 
-/* ─── NAV ─── */
-header {
-  background: var(--green);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  height: 60px;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
-}
-.logo {
-  font-family: 'Playfair Display', serif;
-  color: var(--gold);
-  font-size: 1.1rem;
-  white-space: nowrap;
-}
-.logo small { color: rgba(255,255,255,0.5); font-size: 0.6rem; display: block; letter-spacing: 2px; font-family: 'Lato'; font-style: normal; }
-nav { display: flex; gap: 3px; }
-nav button {
-  background: rgba(255,255,255,0.08);
-  border: none;
-  color: rgba(255,255,255,0.65);
-  padding: 7px 11px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.72rem;
-  letter-spacing: 0.5px;
-  transition: all 0.25s;
-  font-family: 'Lato';
-}
-nav button.active { background: var(--gold); color: var(--dark); font-weight: 700; }
-nav button:hover:not(.active) { background: rgba(255,255,255,0.15); color: #fff; }
-
-/* ─── SECTIONS ─── */
-.section { display: none; position: fixed; top: 60px; left: 0; right: 0; bottom: 0; overflow-y: auto; }
-.section.active { display: block; }
-
-/* ─── PLANNING ─── */
-#planning {
-  display: none;
-  flex-direction: row;
-  gap: 0;
+html, body {
+  height: 100%;
+  overflow: hidden;
   background: var(--dark);
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
-#planning.active { display: flex; }
 
-.steps-sidebar {
-  width: 260px;
-  min-width: 260px;
-  overflow-y: auto;
-  background: #0d1f17;
-  border-right: 1px solid rgba(255,255,255,0.07);
+/* ─── SPLASH ─── */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px;
+  transition: opacity 0.5s, transform 0.5s;
+}
+#splash.hide { opacity: 0; pointer-events: none; transform: scale(1.05); }
+.splash-flag { font-size: 80px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+.splash-title { font-family:'Playfair Display',serif; color:var(--gold); font-size:2rem; text-align:center; }
+.splash-sub { color:var(--mist); font-size:0.85rem; letter-spacing:3px; text-transform:uppercase; }
+.splash-bar { width:180px; height:3px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-top:20px; }
+.splash-progress { height:100%; background:var(--gold); border-radius:2px; animation:load 1.5s ease forwards; }
+@keyframes load { from{width:0} to{width:100%} }
+
+/* ─── LAYOUT ─── */
+#app {
+  display: flex; flex-direction: column;
+  height: 100vh; height: 100dvh;
+  background: var(--cream);
+}
+
+/* ─── TOP HEADER ─── */
+.top-bar {
+  background: var(--dark);
+  padding: var(--safe-top) 20px 0;
+  height: var(--header-h);
+  display: flex; align-items: flex-end; padding-bottom: 10px;
+  position: relative; z-index: 100;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06);
   flex-shrink: 0;
 }
-.sidebar-title {
-  padding: 16px;
-  color: var(--gold);
-  font-size: 0.65rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  font-weight: 700;
+.top-bar-inner { display:flex; align-items:center; justify-content:space-between; width:100%; }
+.app-logo { font-family:'Playfair Display',serif; color:var(--gold); font-size:1.15rem; }
+.app-logo small { display:block; color:var(--mist); font-family:inherit; font-size:0.55rem; letter-spacing:3px; font-weight:400; }
+.days-chip {
+  background: rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3);
+  color:var(--gold); font-size:0.7rem; padding:4px 10px; border-radius:20px;
+  letter-spacing:1px;
 }
-.step-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  cursor: pointer;
-  transition: background 0.2s;
-  display: grid;
-  grid-template-columns: 48px 1fr 40px;
-  align-items: center;
-  gap: 10px;
-}
-.step-item:hover { background: rgba(201,168,76,0.08); }
-.step-item.active { background: rgba(201,168,76,0.15); border-left: 3px solid var(--gold); }
-.step-num {
-  text-align: center;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--gold);
-  line-height: 1;
-}
-.step-num small { display: block; font-family: 'Lato'; font-size: 0.6rem; color: var(--mist); font-weight: 300; letter-spacing: 1px; }
-.step-name { color: #fff; font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
-.step-from { color: var(--mist); font-size: 0.68rem; }
-.step-km-badge { color: var(--gold); font-size: 0.7rem; font-weight: 700; text-align: right; }
-.step-km-badge small { display: block; color: var(--mist); font-size: 0.6rem; font-weight: 300; }
 
-.step-detail-panel {
-  flex: 1;
-  overflow-y: auto;
-  background: var(--cream);
-  padding: 28px 28px 40px;
+/* ─── CONTENT AREA ─── */
+#content {
+  flex: 1; overflow: hidden; position: relative;
 }
-.detail-header { margin-bottom: 24px; }
-.detail-day-label { color: var(--mist); font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
-.detail-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--green); line-height: 1.1; margin-bottom: 4px; }
-.detail-subtitle { color: var(--mist); font-size: 0.85rem; }
-.detail-stats { display: flex; gap: 16px; margin: 16px 0 24px; }
-.dstat { background: var(--green); color: #fff; padding: 10px 16px; border-radius: 10px; text-align: center; }
-.dstat strong { display: block; font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); }
-.dstat span { font-size: 0.65rem; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; }
+.tab-panel {
+  display: none; position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.tab-panel.active { display: block; }
 
-.tiles-section-title { font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--mist); margin-bottom: 12px; font-weight: 700; }
-.tiles-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
-.tile {
-  border-radius: 12px;
-  padding: 14px 16px;
-  text-decoration: none;
+/* ─── BOTTOM TAB BAR ─── */
+.tab-bar {
+  background: rgba(13,31,23,0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: var(--safe-bot);
   display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-  cursor: pointer;
+  flex-shrink: 0;
+  z-index: 100;
 }
-.tile:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
-.tile-icon { font-size: 1.5rem; flex-shrink: 0; }
-.tile-body {}
-.tile-body strong { display: block; color: #fff; font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
-.tile-body span { color: rgba(255,255,255,0.75); font-size: 0.7rem; line-height: 1.3; }
-.tile.t-hotel { background: linear-gradient(135deg, #2d6b47, #1a3a2a); }
-.tile.t-resto { background: linear-gradient(135deg, #a0441f, #6b2010); }
-.tile.t-walk  { background: linear-gradient(135deg, #1e7a50, #0d4a30); }
-.tile.t-castle{ background: linear-gradient(135deg, #5a4520, #3a2d10); }
-.tile.t-nature{ background: linear-gradient(135deg, #1a557a, #0d3050); }
-.tile.t-museum{ background: linear-gradient(135deg, #72206a, #4a1045); }
-.tile.t-transport { background: linear-gradient(135deg, #2a2a7a, #101060); }
+.tab-btn {
+  flex: 1; border: none; background: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 10px 4px 8px;
+  cursor: pointer; transition: all 0.2s;
+  color: var(--mist);
+  gap: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn .tab-icon { font-size: 1.4rem; transition: transform 0.2s; }
+.tab-btn .tab-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.3px; transition: all 0.2s; }
+.tab-btn.active { color: var(--gold); }
+.tab-btn.active .tab-icon { transform: translateY(-2px); }
+.tab-btn:active .tab-icon { transform: scale(0.88); }
 
-.poi-block { margin-top: 8px; }
-.poi-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.poi-chip {
-  background: rgba(26,58,42,0.1);
-  border: 1px solid rgba(26,58,42,0.2);
-  color: var(--green);
-  padding: 4px 12px;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 700;
+/* ─── PLANNING ─── */
+#tab-planning { background: var(--dark); }
+
+/* Hero étape */
+.step-hero {
+  background: linear-gradient(160deg, var(--green) 0%, #0d2a1a 100%);
+  padding: 24px 20px 20px;
+  position: relative; overflow: hidden;
 }
+.step-hero::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:200px; height:200px; border-radius:50%;
+  background:rgba(201,168,76,0.06);
+}
+.step-hero::after {
+  content:''; position:absolute; bottom:-60px; left:-20px;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(201,168,76,0.04);
+}
+.hero-day-label { color:var(--gold); font-size:0.68rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:6px; font-weight:600; }
+.hero-title { font-family:'Playfair Display',serif; color:#fff; font-size:2rem; line-height:1.1; margin-bottom:4px; }
+.hero-from { color:var(--mist); font-size:0.82rem; margin-bottom:16px; }
+.hero-stats { display:flex; gap:10px; }
+.hstat {
+  background: rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:10px 14px; text-align:center; flex:1;
+}
+.hstat-val { color:var(--gold); font-size:1.2rem; font-weight:700; font-family:'Playfair Display',serif; }
+.hstat-lbl { color:var(--mist); font-size:0.6rem; text-transform:uppercase; letter-spacing:1px; }
+.hero-notes { color:rgba(255,255,255,0.65); font-size:0.82rem; line-height:1.55; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.07); }
+
+/* POIs */
+.pois-row { display:flex; gap:6px; flex-wrap:wrap; padding:14px 20px 0; }
+.poi-pill {
+  background:rgba(26,58,42,0.12); border:1px solid rgba(26,58,42,0.2);
+  color:var(--green); font-size:0.72rem; padding:5px 12px; border-radius:50px; font-weight:600;
+}
+
+/* Section title */
+.section-heading {
+  padding: 18px 20px 10px;
+  color:var(--mist); font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; font-weight:700;
+}
+
+/* Tiles */
+.tiles-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 16px 8px; }
+.tile {
+  border-radius:16px; padding:16px 14px;
+  text-decoration:none; display:flex; flex-direction:column; gap:8px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.15);
+  transition:transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color:transparent;
+  min-height: 90px;
+}
+.tile:active { transform:scale(0.96); box-shadow:0 1px 6px rgba(0,0,0,0.1); }
+.tile-top { display:flex; align-items:center; gap:8px; }
+.tile-emoji { font-size:1.3rem; }
+.tile-name { color:#fff; font-size:0.8rem; font-weight:700; }
+.tile-desc { color:rgba(255,255,255,0.65); font-size:0.68rem; line-height:1.3; }
+.tile.t-hotel  { background:linear-gradient(145deg,#2d6b47,#1a3a2a); }
+.tile.t-resto  { background:linear-gradient(145deg,#a04420,#6b2010); }
+.tile.t-walk   { background:linear-gradient(145deg,#1e7a50,#0d4a30); }
+.tile.t-castle { background:linear-gradient(145deg,#5a4520,#3a2d10); }
+.tile.t-nature { background:linear-gradient(145deg,#1a557a,#0d3050); }
+.tile.t-museum { background:linear-gradient(145deg,#72206a,#4a1045); }
+.tile.t-transport { background:linear-gradient(145deg,#2a2a7a,#101060); }
+
+/* Steps list */
+.steps-scroll { padding:4px 0 100px; }
+.step-row {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  cursor:pointer; transition:background 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.step-row:active { background:rgba(201,168,76,0.08); }
+.step-row.active-step { background:rgba(201,168,76,0.1); border-left:3px solid var(--gold); }
+.step-dot { width:36px; height:36px; border-radius:50%; background:rgba(201,168,76,0.15); border:2px solid rgba(201,168,76,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.step-dot-day { color:var(--gold); font-size:0.75rem; font-weight:700; }
+.step-row-info { flex:1; }
+.step-row-to { color:#fff; font-size:0.88rem; font-weight:600; margin-bottom:2px; }
+.step-row-from { color:var(--mist); font-size:0.7rem; }
+.step-row-km { color:var(--gold); font-size:0.75rem; font-weight:700; text-align:right; white-space:nowrap; }
+.step-row-h { color:var(--mist); font-size:0.62rem; text-align:right; }
+.step-arrow { color:var(--mist); font-size:0.7rem; }
+
+/* Switcher (hero / liste) */
+.view-switcher {
+  display:flex; background:rgba(255,255,255,0.06); border-radius:10px; margin:14px 20px 0; padding:3px;
+}
+.vsw-btn {
+  flex:1; border:none; background:none; color:var(--mist); font-size:0.78rem; padding:8px; border-radius:8px; cursor:pointer; transition:all 0.2s; font-family:inherit; font-weight:600;
+}
+.vsw-btn.active { background:var(--gold); color:var(--dark); }
 
 /* ─── MAP ─── */
-#map-section { padding: 0; overflow: hidden; }
-#leaflet-map { width: 100%; height: calc(100vh - 60px); }
+#tab-map { padding:0; background:var(--dark); }
+#leaflet-map { width:100%; height:100%; min-height:300px; }
 
 /* ─── METEO ─── */
-#meteo { background: var(--cream); padding: 24px 20px 40px; }
-.page-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--green); margin-bottom: 6px; }
-.page-sub { color: var(--mist); font-size: 0.85rem; margin-bottom: 24px; }
+#tab-meteo { background:var(--cream); }
+.meteo-hero {
+  background: linear-gradient(160deg, var(--green), #0d2a1a);
+  padding: 24px 20px 20px;
+}
+.meteo-hero-title { font-family:'Playfair Display',serif; color:#fff; font-size:1.6rem; margin-bottom:4px; }
+.meteo-hero-sub { color:var(--mist); font-size:0.78rem; line-height:1.4; }
+.meteo-live-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3);
+  color:var(--gold); font-size:0.65rem; font-weight:700; letter-spacing:1px;
+  padding:4px 10px; border-radius:20px; margin-bottom:12px;
+}
+.live-dot { width:6px; height:6px; border-radius:50%; background:#4ade80; animation:blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
 .meteo-note {
-  background: rgba(201,168,76,0.12);
-  border-left: 4px solid var(--gold);
-  padding: 12px 16px;
-  border-radius: 0 10px 10px 0;
-  margin-bottom: 22px;
-  font-size: 0.82rem;
-  color: var(--dark);
+  margin:16px 16px 0;
+  background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.25);
+  border-radius:14px; padding:12px 14px;
+  font-size:0.78rem; color:var(--dark); line-height:1.5;
 }
-.meteo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-.meteo-card {
-  background: linear-gradient(160deg, var(--green), #2d6b47);
-  border-radius: 16px;
-  padding: 18px 16px;
-  color: #fff;
-  border: 1px solid rgba(201,168,76,0.2);
-  cursor: pointer;
-  transition: transform 0.2s;
-  text-decoration: none;
-  display: block;
+.meteo-cards { display:flex; flex-direction:column; gap:10px; padding:14px 16px 100px; }
+.mc {
+  background:#fff; border-radius:18px; padding:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.07);
+  display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center;
+  text-decoration:none; color:inherit;
+  transition:transform 0.15s;
 }
-.meteo-card:hover { transform: translateY(-3px); }
-.mc-city { font-weight: 700; font-size: 0.95rem; }
-.mc-date { font-size: 0.68rem; color: rgba(255,255,255,0.55); margin-bottom: 12px; letter-spacing: 1px; }
-.mc-icon { font-size: 2.2rem; margin-bottom: 4px; }
-.mc-temp { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: var(--gold); line-height: 1; }
-.mc-desc { font-size: 0.75rem; opacity: 0.8; margin-top: 4px; }
-.mc-details { margin-top: 10px; display: flex; gap: 10px; font-size: 0.7rem; opacity: 0.65; }
-.meteo-tips { margin-top: 24px; }
-.meteo-tips h3 { font-family: 'Playfair Display', serif; color: var(--green); margin-bottom: 12px; }
-.tip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.tip { background: #fff; border-radius: 12px; padding: 14px 16px; border-left: 4px solid var(--green); font-size: 0.8rem; }
-.tip strong { display: block; color: var(--green); margin-bottom: 4px; }
+.mc:active { transform:scale(0.98); }
+.mc-left {}
+.mc-city-name { font-size:1rem; font-weight:700; color:var(--dark); margin-bottom:1px; }
+.mc-trip-date { font-size:0.68rem; color:var(--mist); margin-bottom:8px; letter-spacing:0.5px; }
+.mc-conditions { display:flex; align-items:center; gap:8px; }
+.mc-icon { font-size:1.6rem; }
+.mc-desc-text { font-size:0.8rem; color:#555; }
+.mc-pills { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+.mc-pill { background:var(--cream); color:var(--dark); font-size:0.68rem; padding:3px 8px; border-radius:20px; font-weight:600; }
+.mc-temp-big { font-family:'Playfair Display',serif; font-size:2.8rem; color:var(--green); line-height:1; text-align:right; }
+.mc-feel { font-size:0.7rem; color:var(--mist); text-align:right; margin-top:2px; }
+.mc-skeleton { background:#f0ebe2; border-radius:18px; height:110px; animation:shimmer 1.5s infinite; }
+@keyframes shimmer { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+/* Conseils */
+.tips-section { padding:0 16px 20px; }
+.tips-title { font-family:'Playfair Display',serif; color:var(--green); font-size:1.2rem; margin:20px 0 12px; }
+.tip-card { background:#fff; border-radius:14px; padding:14px 16px; margin-bottom:8px; display:flex; gap:12px; align-items:flex-start; box-shadow:0 1px 6px rgba(0,0,0,0.06); }
+.tip-emoji { font-size:1.4rem; flex-shrink:0; margin-top:1px; }
+.tip-text strong { display:block; font-size:0.82rem; color:var(--dark); margin-bottom:3px; }
+.tip-text span { font-size:0.75rem; color:#666; line-height:1.4; }
 
 /* ─── CALENDRIER ─── */
-#calendrier { padding: 24px 20px 40px; }
-.cal-wrapper { max-width: 700px; }
-.cal-month { margin-bottom: 30px; }
-.cal-month-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--green); margin-bottom: 12px; }
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+#tab-cal { background:var(--cream); }
+.cal-header-block {
+  background:linear-gradient(160deg,var(--green),#0d2a1a);
+  padding:24px 20px 20px;
 }
-.cal-hdr {
-  background: var(--dark);
-  color: var(--gold);
-  text-align: center;
-  padding: 8px 2px;
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  font-weight: 700;
+.cal-header-title { font-family:'Playfair Display',serif; color:#fff; font-size:1.6rem; margin-bottom:4px; }
+.cal-header-sub { color:var(--mist); font-size:0.78rem; }
+.cal-stats { display:flex; gap:8px; margin-top:14px; overflow-x:auto; padding-bottom:2px; }
+.cal-stat {
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:10px 14px; text-align:center; flex-shrink:0;
 }
+.cal-stat-val { color:var(--gold); font-family:'Playfair Display',serif; font-size:1.3rem; }
+.cal-stat-lbl { color:var(--mist); font-size:0.58rem; letter-spacing:1px; text-transform:uppercase; }
+
+.cal-body { padding:16px 16px 100px; }
+.cal-month-block { margin-bottom:24px; }
+.cal-month-name { font-size:0.78rem; font-weight:700; color:var(--mist); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-day-hdr { text-align:center; font-size:0.6rem; font-weight:700; color:var(--mist); letter-spacing:1px; padding:4px 0; }
 .cal-cell {
-  background: #fff;
-  min-height: 72px;
-  padding: 6px;
-  position: relative;
+  background:#fff; border-radius:10px; min-height:54px;
+  padding:5px 4px; position:relative;
 }
-.cal-cell.empty { background: #f0ebe2; }
-.cal-cell.trip { background: #e5f0e9; cursor: pointer; }
-.cal-cell.trip:hover { background: #cde3d4; }
-.cal-cell.today { outline: 2px solid var(--gold); outline-offset: -2px; }
-.cal-num { font-size: 0.82rem; font-weight: 700; color: #aaa; }
-.cal-cell.trip .cal-num { color: var(--green); }
-.cal-event-tag {
-  margin-top: 3px;
-  background: var(--green);
-  color: #fff;
-  font-size: 0.58rem;
-  padding: 2px 5px;
-  border-radius: 4px;
-  line-height: 1.4;
-  display: block;
+.cal-cell.empty { background:rgba(0,0,0,0.03); }
+.cal-cell.trip { background:#e8f4ec; cursor:pointer; }
+.cal-cell.trip:active { background:#cde3d4; transform:scale(0.96); }
+.cal-num { font-size:0.75rem; font-weight:700; color:#ccc; }
+.cal-cell.trip .cal-num { color:var(--green); }
+.cal-tag {
+  margin-top:3px; font-size:0.5rem; font-weight:700;
+  padding:2px 4px; border-radius:5px; line-height:1.3; display:block;
+  background:var(--green); color:#fff;
 }
-.cal-event-tag.gold { background: var(--gold); color: var(--dark); }
-.cal-event-tag.blue { background: var(--blue); }
+.cal-tag.gold { background:var(--gold); color:var(--dark); }
 
-/* ─── STATS FOOTER ─── */
-.stats-row {
-  background: var(--dark);
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  overflow-x: auto;
-  border-top: 1px solid rgba(255,255,255,0.05);
-}
-.stat-block {
-  padding: 14px 20px;
-  text-align: center;
-  border-right: 1px solid rgba(255,255,255,0.05);
-  min-width: 90px;
-}
-.stat-block strong { display: block; font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.4rem; }
-.stat-block span { font-size: 0.62rem; color: rgba(255,255,255,0.45); letter-spacing: 1px; text-transform: uppercase; }
-
-/* ─── MOBILE ─── */
-@media (max-width: 640px) {
-  #planning.active { flex-direction: column; }
-  .steps-sidebar { width: 100%; min-width: unset; max-height: 40vh; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .step-detail-panel { padding: 18px; }
-  .detail-title { font-size: 1.5rem; }
-  .tiles-grid { grid-template-columns: 1fr; }
-  nav button { padding: 6px 8px; font-size: 0.65rem; }
-  .logo { font-size: 0.9rem; }
-  .meteo-grid { grid-template-columns: repeat(2, 1fr); }
-  .cal-cell { min-height: 56px; }
-}
+/* ─── GLOBAL ─── */
+.pb-safe { padding-bottom:calc(80px + var(--safe-bot)); }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland 2026
-    <small>ROADTRIP · MARS 2026</small>
-  </div>
-  <nav>
-    <button class="active" onclick="show('planning')">📋 Planning</button>
-    <button onclick="show('map-section')">🗺️ Carte</button>
-    <button onclick="show('meteo')">☁️ Météo</button>
-    <button onclick="show('calendrier')">📅 Calendrier</button>
-  </nav>
-</header>
-
-<!-- ══════════════════════════════════════
-     PLANNING
-══════════════════════════════════════ -->
-<div id="planning" class="section">
-  <div class="steps-sidebar">
-    <div class="sidebar-title">📍 Étapes du voyage</div>
-    <!-- steps injected by JS -->
-  </div>
-  <div class="step-detail-panel">
-    <!-- detail injected by JS -->
-  </div>
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-flag">🏴󠁧󠁢󠁳󠁣󠁴󠁿</div>
+  <div class="splash-title">Scotland Roadtrip</div>
+  <div class="splash-sub">Mars 2026</div>
+  <div class="splash-bar"><div class="splash-progress"></div></div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MAP
-══════════════════════════════════════ -->
-<div id="map-section" class="section">
-  <div id="leaflet-map"></div>
-  <div id="map-fallback" style="display:none; width:100%; height:100%; position:relative;">
-    <iframe id="gmap-frame" width="100%" height="100%" frameborder="0" style="border:0;"
-      src="https://www.google.com/maps/embed?pb=!1m76!1m8!1m3!1d2843558.0!2d-4.5!3d57.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m65!3e0!4m5!1s0x47ef4a0e0cc0ecef%3A0x8a7ba6a01cae7a42!2sCarlisle%2C+UK!3m2!1d54.8951!2d-2.9382!4m5!1s0x4884bb3b56c5e3a9%3A0x2e5a7b1e1e1e1e1e!2sFort+William%2C+UK!3m2!1d56.8198!2d-5.1052!4m5!1s0x488d4a39a83e4e1f%3A0x1b1b1b1b1b1b1b1b!2sIsle+of+Skye%2C+UK!3m2!1d57.5822!2d-6.2122!4m5!1s0x488f5a5a5a5a5a5a%3A0x2c2c2c2c2c2c2c2c!2sUllapool%2C+UK!3m2!1d57.9369!2d-5.1589!4m5!1s0x4888a1a1a1a1a1a1%3A0x3d3d3d3d3d3d3d3d!2sTongue%2C+UK!3m2!1d58.4807!2d-4.4204!4m5!1s0x4889a9a9a9a9a9a9%3A0x4e4e4e4e4e4e4e4e!2sInverness%2C+UK!3m2!1d57.4778!2d-4.2247!4m5!1s0x4887c78fb1d5a3c5%3A0xffe7703e0d0ca1fe!2sEdinburgh%2C+UK!3m2!1d55.9533!2d-3.1883!5e0!3m2!1sfr!2sbe!4v1234567890"
-      allowfullscreen loading="lazy"></iframe>
-    <div style="position:absolute;bottom:16px;left:16px;background:rgba(13,31,23,0.92);color:#fff;padding:12px 16px;border-radius:10px;border:1px solid rgba(201,168,76,0.3);font-family:Lato,sans-serif;font-size:0.75rem;max-width:200px;">
-      <div style="color:#c9a84c;font-weight:700;letter-spacing:1px;margin-bottom:8px;">🗺️ ITINÉRAIRE</div>
-      <div style="margin-bottom:3px;">📍 Carlisle</div>
-      <div style="margin-bottom:3px;">📍 Fort William</div>
-      <div style="margin-bottom:3px;">📍 Isle of Skye</div>
-      <div style="margin-bottom:3px;">📍 Ullapool</div>
-      <div style="margin-bottom:3px;">📍 Tongue</div>
-      <div style="margin-bottom:3px;">📍 Inverness</div>
-      <div>📍 Edinburgh</div>
-    </div>
-  </div>
-</div>
+<!-- APP -->
+<div id="app">
 
-<!-- ══════════════════════════════════════
-     METEO
-══════════════════════════════════════ -->
-<div id="meteo" class="section">
-  <h2 class="page-title">☁️ Météo en Écosse</h2>
-  <p class="page-sub">Données en temps réel via Open-Meteo · Actualisées à chaque ouverture</p>
-
-  <div class="meteo-note">
-    ☔ <strong>Note :</strong> Les données affichées sont les <strong>conditions actuelles</strong> pour chaque ville de l'itinéraire. Les prévisions fiables n'étant disponibles que sur 14 jours, revenez sur ce site à l'approche du voyage pour voir la vraie météo de mars 2026 !
-  </div>
-
-  <div class="meteo-grid" id="meteo-grid">
-    <!-- cards injected by JS -->
-  </div>
-
-  <div class="meteo-tips" style="margin-top:28px;">
-    <h3>🎒 Conseils pour l'Écosse en Mars</h3>
-    <div class="tip-grid">
-      <div class="tip"><strong>🧥 Layering</strong>Le temps peut changer en quelques heures. Habille-toi en couches et garde un imperméable accessible.</div>
-      <div class="tip"><strong>🌅 Jours plus longs</strong>Mars offre de plus en plus de lumière — lever du soleil ~6h30, coucher ~18h30.</div>
-      <div class="tip"><strong>💨 Vent dans les Highlands</strong>Les crêtes et côtes peuvent être très venteuses. Prévois des vêtements coupe-vent.</div>
-      <div class="tip"><strong>🌈 Lumière magique</strong>La lumière dorée de mars est idéale pour les photos de paysages !</div>
-      <div class="tip"><strong>❄️ Routes en altitude</strong>Quelques cols peuvent encore être enneigés. Vérifie l'état des routes via Traffic Scotland.</div>
-      <div class="tip"><strong>🌊 Mer agitée</strong>Le ferry vers Skye peut être annulé par mauvais temps — prévois un plan B par le pont de Skye.</div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     CALENDRIER
-══════════════════════════════════════ -->
-<div id="calendrier" class="section">
-  <h2 class="page-title">📅 Calendrier du voyage</h2>
-  <p class="page-sub" style="margin-bottom:20px;">Vue d'ensemble · Février–Mars 2026</p>
-
-  <div class="cal-wrapper">
-    <!-- Feb -->
-    <div class="cal-month">
-      <div class="cal-month-title">Février 2026</div>
-      <div class="cal-grid" id="cal-feb"></div>
-    </div>
-    <!-- March -->
-    <div class="cal-month">
-      <div class="cal-month-title">Mars 2026</div>
-      <div class="cal-grid" id="cal-mar"></div>
-    </div>
-    <!-- April -->
-    <div class="cal-month">
-      <div class="cal-month-title">Avril 2026</div>
-      <div class="cal-grid" id="cal-apr"></div>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <div class="app-logo">Scotland 2026 <small>ROADTRIP · MARS</small></div>
+      <div class="days-chip">11 jours</div>
     </div>
   </div>
 
-  <!-- Stats row -->
-  <div class="stats-row" style="margin-top:24px; border-radius:14px; overflow:hidden;">
-    <div class="stat-block"><strong>3183</strong><span>km total</span></div>
-    <div class="stat-block"><strong>11</strong><span>jours</span></div>
-    <div class="stat-block"><strong>41h</strong><span>conduite</span></div>
-    <div class="stat-block"><strong>8</strong><span>hôtels</span></div>
-    <div class="stat-block"><strong>2</strong><span>ferries</span></div>
-    <div class="stat-block"><strong>1</strong><span>Eurotunnel</span></div>
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ═══ PLANNING ═══ -->
+    <div id="tab-planning" class="tab-panel active">
+      <div class="view-switcher">
+        <button class="vsw-btn active" onclick="setPlanView('detail')">📍 Étape</button>
+        <button class="vsw-btn" onclick="setPlanView('list')">📋 Liste</button>
+      </div>
+
+      <!-- Detail view -->
+      <div id="plan-detail">
+        <div id="step-hero-content"></div>
+        <div id="step-tiles-content"></div>
+      </div>
+
+      <!-- List view -->
+      <div id="plan-list" style="display:none;">
+        <div class="steps-scroll" id="steps-list-el"></div>
+      </div>
+    </div>
+
+    <!-- ═══ MAP ═══ -->
+    <div id="tab-map" class="tab-panel">
+      <div id="leaflet-map"></div>
+    </div>
+
+    <!-- ═══ METEO ═══ -->
+    <div id="tab-meteo" class="tab-panel">
+      <div class="meteo-hero">
+        <div class="meteo-live-badge"><div class="live-dot"></div> EN DIRECT</div>
+        <div class="meteo-hero-title">☁️ Météo</div>
+        <div class="meteo-hero-sub">Conditions actuelles pour chaque étape de ton voyage</div>
+      </div>
+      <div class="meteo-note">
+        ℹ️ Les données sont <strong>en temps réel</strong> via Open-Meteo. Reviens à l'approche du voyage pour voir les vraies prévisions de mars 2026 !
+      </div>
+      <div class="meteo-cards" id="meteo-cards"></div>
+      <div class="tips-section">
+        <div class="tips-title">🎒 Conseils pour Mars</div>
+        <div class="tip-card"><div class="tip-emoji">🧥</div><div class="tip-text"><strong>Layering essentiel</strong><span>Le temps change vite. Habille-toi en couches — imperméable toujours accessible.</span></div></div>
+        <div class="tip-card"><div class="tip-emoji">💨</div><div class="tip-text"><strong>Vent dans les Highlands</strong><span>Crêtes et côtes très venteuses. Prévois coupe-vent imperméable.</span></div></div>
+        <div class="tip-card"><div class="tip-emoji">🌅</div><div class="tip-text"><strong>Belles lumières de mars</strong><span>Lever ~6h30, coucher ~18h30. Lumière dorée parfaite pour les photos !</span></div></div>
+        <div class="tip-card"><div class="tip-emoji">🌊</div><div class="tip-text"><strong>Ferries variables</strong><span>Le ferry Mallaig → Armadale peut être annulé. Alternative : Pont de Skye (gratuit).</span></div></div>
+        <div class="tip-card"><div class="tip-emoji">❄️</div><div class="tip-text"><strong>Routes en altitude</strong><span>Quelques cols peuvent être enneigés. Vérifie via Traffic Scotland.</span></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ CALENDRIER ═══ -->
+    <div id="tab-cal" class="tab-panel">
+      <div class="cal-header-block">
+        <div class="cal-header-title">📅 Calendrier</div>
+        <div class="cal-header-sub">Vue d'ensemble du voyage</div>
+        <div class="cal-stats">
+          <div class="cal-stat"><div class="cal-stat-val">3183</div><div class="cal-stat-lbl">km total</div></div>
+          <div class="cal-stat"><div class="cal-stat-val">11</div><div class="cal-stat-lbl">jours</div></div>
+          <div class="cal-stat"><div class="cal-stat-val">41h</div><div class="cal-stat-lbl">conduite</div></div>
+          <div class="cal-stat"><div class="cal-stat-val">8</div><div class="cal-stat-lbl">hôtels</div></div>
+          <div class="cal-stat"><div class="cal-stat-val">2</div><div class="cal-stat-lbl">ferries</div></div>
+        </div>
+      </div>
+      <div class="cal-body">
+        <div class="cal-month-block">
+          <div class="cal-month-name">Février 2026</div>
+          <div class="cal-grid" id="cal-feb"></div>
+        </div>
+        <div class="cal-month-block">
+          <div class="cal-month-name">Mars 2026</div>
+          <div class="cal-grid" id="cal-mar"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('planning',this)">
+      <div class="tab-icon">🗺️</div>
+      <div class="tab-label">Planning</div>
+    </button>
+    <button class="tab-btn" onclick="switchTab('map',this)">
+      <div class="tab-icon">📍</div>
+      <div class="tab-label">Carte</div>
+    </button>
+    <button class="tab-btn" onclick="switchTab('meteo',this)">
+      <div class="tab-icon">☁️</div>
+      <div class="tab-label">Météo</div>
+    </button>
+    <button class="tab-btn" onclick="switchTab('cal',this)">
+      <div class="tab-icon">📅</div>
+      <div class="tab-label">Calendrier</div>
+    </button>
   </div>
-</div>
+
+</div><!-- /app -->
 
 <script>
-// ══════════════════════════════════════
+// ══════════════════════════════════════════════════
 // DATA
-// ══════════════════════════════════════
+// ══════════════════════════════════════════════════
 const steps = [
   {
-    day: "Jeu 26 Fév",
-    short: "26",
-    dayShort: "JEU",
-    from: "Genval",
-    to: "Calais",
-    km: 226,
-    h: 2.5,
-    hotel: null,
-    hotelUrl: null,
-    lat: 50.9548, lng: 1.8587,
-    pois: ["Route vers la mer", "Embarquement Tunnel"],
-    tiles: {
-      hotel: null,
-      resto: "https://www.tripadvisor.fr/Restaurants-g187064-Calais_Pas_de_Calais_Nord_Pas_de_Calais.html",
-      walk: null,
-      castle: null,
-      nature: null,
-      museum: null,
-      transport: "https://www.eurotunnel.com/fr/"
-    },
-    notes: "Départ de Genval vers Calais. Embarquement Eurotunnel en soirée vers Folkestone."
+    dayLabel:"Jeu 26 Fév", dayShort:"26/2", from:"Genval", to:"Calais",
+    km:226, h:2.5, hotel:null, hotelUrl:null,
+    lat:50.9548, lng:1.8587,
+    pois:["Route vers la mer","Embarquement Tunnel"],
+    notes:"Départ de Genval vers Calais. Embarquement Eurotunnel en soirée vers Folkestone.",
+    tiles:{ hotel:null, resto:"https://www.tripadvisor.fr/Restaurants-g187064-Calais.html", walk:null, castle:null, nature:null, museum:null, transport:"https://www.eurotunnel.com/fr/" }
   },
   {
-    day: "Jeu 26 Fév",
-    short: "—",
-    dayShort: "NUIT",
-    from: "Folkestone",
-    to: "Carlisle",
-    km: 600,
-    h: 6,
-    hotel: "Crown & Mitre, Carlisle",
-    hotelUrl: "https://www.booking.com/hotel/gb/crown-and-mitre.fr.html",
-    lat: 54.8951, lng: -2.9382,
-    pois: ["Arrivée tard ~21h", "Carlisle"],
-    tiles: {
-      hotel: "https://www.booking.com/hotel/gb/crown-and-mitre.fr.html",
-      resto: "https://www.tripadvisor.fr/Restaurants-g186385-Carlisle_Cumbria_England.html",
-      walk: null,
-      castle: "https://www.carlislecastle.org.uk/",
-      nature: null,
-      museum: null,
-      transport: "https://www.eurotunnel.com/fr/"
-    },
-    notes: "Traversée de l'Angleterre de nuit. Arrivée à Carlisle vers 21h. Repos bien mérité au Crown & Mitre."
+    dayLabel:"Jeu 26 – Nuit", dayShort:"26/2", from:"Folkestone", to:"Carlisle",
+    km:600, h:6, hotel:"Crown & Mitre", hotelUrl:"https://www.booking.com/hotel/gb/crown-and-mitre.fr.html",
+    lat:54.8951, lng:-2.9382,
+    pois:["Arrivée ~21h","Carlisle"],
+    notes:"Traversée de l'Angleterre de nuit. Arrivée à Carlisle vers 21h. Repos au Crown & Mitre.",
+    tiles:{ hotel:"https://www.booking.com/hotel/gb/crown-and-mitre.fr.html", resto:"https://www.tripadvisor.fr/Restaurants-g186385-Carlisle.html", walk:null, castle:"https://www.carlislecastle.org.uk/", nature:null, museum:null, transport:"https://www.eurotunnel.com/fr/" }
   },
   {
-    day: "Ven 27 Fév",
-    short: "27",
-    dayShort: "VEN",
-    from: "Carlisle",
-    to: "Fort William",
-    km: 320,
-    h: 4,
-    hotel: "Loch Leven Hotel",
-    hotelUrl: "https://www.lochleven-hotel.co.uk/",
-    lat: 56.8198, lng: -5.1052,
-    pois: ["Mur d'Hadrien", "Glencoe"],
-    tiles: {
-      hotel: "https://www.lochleven-hotel.co.uk/",
-      resto: "https://www.tripadvisor.fr/Restaurants-g551782-Fort_William_Scottish_Highlands_Scotland.html",
-      walk: "https://www.walkhighlands.co.uk/lochaber/glencoe.shtml",
-      castle: "https://www.english-heritage.org.uk/visit/places/housesteads-roman-fort-hadrians-wall/",
-      nature: "https://www.glencoe-visitor-centre.org.uk/",
-      museum: "https://www.visitscotland.com/info/see-do/glencoe-visitor-centre-p247821",
-      transport: "https://www.google.com/maps/dir/Carlisle/Fort+William"
-    },
-    notes: "Entrée en Écosse ! Arrêt au Mur d'Hadrien puis route vers les Highlands via Glencoe."
+    dayLabel:"Ven 27 Fév", dayShort:"27/2", from:"Carlisle", to:"Fort William",
+    km:320, h:4, hotel:"Loch Leven Hotel", hotelUrl:"https://www.lochleven-hotel.co.uk/",
+    lat:56.8198, lng:-5.1052,
+    pois:["Mur d'Hadrien","Glencoe"],
+    notes:"Entrée en Écosse ! Arrêt au Mur d'Hadrien puis route vers les Highlands via Glencoe.",
+    tiles:{ hotel:"https://www.lochleven-hotel.co.uk/", resto:"https://www.tripadvisor.fr/Restaurants-g551782-Fort_William.html", walk:"https://www.walkhighlands.co.uk/lochaber/glencoe.shtml", castle:"https://www.english-heritage.org.uk/visit/places/housesteads-roman-fort-hadrians-wall/", nature:"https://www.glencoe-visitor-centre.org.uk/", museum:"https://www.visitscotland.com/info/see-do/glencoe-visitor-centre-p247821", transport:"https://www.google.com/maps/dir/Carlisle/Fort+William" }
   },
   {
-    day: "Sam 28 Fév",
-    short: "28",
-    dayShort: "SAM",
-    from: "Fort William",
-    to: "Linicro, Skye",
-    km: 170,
-    h: 3,
-    hotel: "Monkstadt House",
-    hotelUrl: "https://www.monkstadt.co.uk/",
-    lat: 57.5822, lng: -6.2122,
-    pois: ["Ferry Mallaig → Armadale", "Cuillin Hills"],
-    tiles: {
-      hotel: "https://www.monkstadt.co.uk/",
-      resto: "https://www.tripadvisor.fr/Restaurants-g580218-Isle_of_Skye_Scotland.html",
-      walk: "https://www.walkhighlands.co.uk/skye/",
-      castle: "https://www.historic-scotland.gov.uk/",
-      nature: "https://www.visitscotland.com/destinations-maps/isle-of-skye/",
-      museum: null,
-      transport: "https://www.calmac.co.uk/route/mallaig-armadale"
-    },
-    notes: "Route vers Mallaig via le spectaculaire Viaduc de Glenfinnan. Ferry vers Skye !"
+    dayLabel:"Sam 28 Fév", dayShort:"28/2", from:"Fort William", to:"Skye · Linicro",
+    km:170, h:3, hotel:"Monkstadt House", hotelUrl:"https://www.monkstadt.co.uk/",
+    lat:57.5822, lng:-6.2122,
+    pois:["Ferry Mallaig → Armadale","Cuillins","Viaduc Glenfinnan"],
+    notes:"Route vers Mallaig via le spectaculaire Viaduc de Glenfinnan — puis ferry vers Skye !",
+    tiles:{ hotel:"https://www.monkstadt.co.uk/", resto:"https://www.tripadvisor.fr/Restaurants-g580218-Isle_of_Skye.html", walk:"https://www.walkhighlands.co.uk/skye/", castle:null, nature:"https://www.visitscotland.com/destinations-maps/isle-of-skye/", museum:null, transport:"https://www.calmac.co.uk/route/mallaig-armadale" }
   },
   {
-    day: "Dim 1 Mar",
-    short: "1",
-    dayShort: "DIM",
-    from: "Linicro",
-    to: "Linicro (Skye)",
-    km: 0,
-    h: 0,
-    hotel: "Monkstadt House",
-    hotelUrl: "https://www.monkstadt.co.uk/",
-    lat: 57.5822, lng: -6.2122,
-    pois: ["Tour Trotternish", "Old Man of Storr", "Kilt Rock", "Quiraing"],
-    tiles: {
-      hotel: "https://www.monkstadt.co.uk/",
-      resto: "https://www.tripadvisor.fr/Restaurants-g580218-Isle_of_Skye_Scotland.html",
-      walk: "https://www.walkhighlands.co.uk/skye/storr.shtml",
-      castle: "https://www.duntulm.co.uk/",
-      nature: "https://www.walkhighlands.co.uk/skye/quiraing.shtml",
-      museum: "https://www.skye-museum.co.uk/",
-      transport: null
-    },
-    notes: "Journée exploration de la péninsule Trotternish. Old Man of Storr, Kilt Rock, Quiraing…"
+    dayLabel:"Dim 1 Mar", dayShort:"1/3", from:"Linicro", to:"Skye · Trotternish",
+    km:0, h:0, hotel:"Monkstadt House", hotelUrl:"https://www.monkstadt.co.uk/",
+    lat:57.5822, lng:-6.2122,
+    pois:["Old Man of Storr","Kilt Rock","Quiraing","Duntulm Castle"],
+    notes:"Journée exploration de la péninsule Trotternish. Paysages volcaniques spectaculaires !",
+    tiles:{ hotel:"https://www.monkstadt.co.uk/", resto:"https://www.tripadvisor.fr/Restaurants-g580218-Isle_of_Skye.html", walk:"https://www.walkhighlands.co.uk/skye/storr.shtml", castle:"https://www.duntulm.co.uk/", nature:"https://www.walkhighlands.co.uk/skye/quiraing.shtml", museum:"https://www.skye-museum.co.uk/", transport:null }
   },
   {
-    day: "Lun 2 Mar",
-    short: "2",
-    dayShort: "LUN",
-    from: "Linicro",
-    to: "Ullapool",
-    km: 330,
-    h: 6.5,
-    hotel: "Kylesku Hotel",
-    hotelUrl: "https://www.kyleskuhotel.co.uk/",
-    lat: 57.9369, lng: -5.1589,
-    pois: ["North Coast Tour", "Eilean Donan Castle"],
-    tiles: {
-      hotel: "https://www.kyleskuhotel.co.uk/",
-      resto: "https://www.tripadvisor.fr/Restaurants-g551793-Ullapool_Scottish_Highlands_Scotland.html",
-      walk: "https://www.visitscotland.com/destinations-maps/northern-highlands/",
-      castle: "https://www.eileandonancastle.com/",
-      nature: "https://www.visitscotland.com/info/see-do/inverpolly-national-nature-reserve-p245201",
-      museum: null,
-      transport: null
-    },
-    notes: "Longue route côtière magnifique. Arrêt incontournable à Eilean Donan Castle !"
+    dayLabel:"Lun 2 Mar", dayShort:"2/3", from:"Linicro", to:"Ullapool",
+    km:330, h:6.5, hotel:"Kylesku Hotel", hotelUrl:"https://www.kyleskuhotel.co.uk/",
+    lat:57.8960, lng:-5.1589,
+    pois:["Eilean Donan Castle","North Coast Tour"],
+    notes:"Longue route côtière magnifique. Arrêt incontournable à Eilean Donan Castle !",
+    tiles:{ hotel:"https://www.kyleskuhotel.co.uk/", resto:"https://www.tripadvisor.fr/Restaurants-g551793-Ullapool.html", walk:"https://www.visitscotland.com/destinations-maps/northern-highlands/", castle:"https://www.eileandonancastle.com/", nature:"https://www.visitscotland.com/info/see-do/inverpolly-national-nature-reserve-p245201", museum:null, transport:null }
   },
   {
-    day: "Mar 3 Mar",
-    short: "3",
-    dayShort: "MAR",
-    from: "Ullapool",
-    to: "Tongue",
-    km: 111,
-    h: 2.5,
-    hotel: "Tongue Hotel",
-    hotelUrl: "https://www.tonguehotel.co.uk/",
-    lat: 58.4807, lng: -4.4204,
-    pois: ["Sandwood Beach", "Côte Nord"],
-    tiles: {
-      hotel: "https://www.tonguehotel.co.uk/",
-      resto: "https://www.tripadvisor.fr/Restaurants-g551805-Tongue_Scottish_Highlands_Scotland.html",
-      walk: "https://www.walkhighlands.co.uk/sutherland/sandwood-bay.shtml",
-      castle: null,
-      nature: "https://www.walkhighlands.co.uk/sutherland/sandwood-bay.shtml",
-      museum: null,
-      transport: null
-    },
-    notes: "Route vers le Nord le long de la côte. Sandwood Beach est l'une des plus belles plages sauvages d'Écosse."
+    dayLabel:"Mar 3 Mar", dayShort:"3/3", from:"Ullapool", to:"Tongue",
+    km:111, h:2.5, hotel:"Tongue Hotel", hotelUrl:"https://www.tonguehotel.co.uk/",
+    lat:58.4807, lng:-4.4204,
+    pois:["Sandwood Beach","Côte Nord-Ouest"],
+    notes:"Route vers le nord. Sandwood Beach est l'une des plus belles plages sauvages d'Écosse.",
+    tiles:{ hotel:"https://www.tonguehotel.co.uk/", resto:"https://www.tripadvisor.fr/Restaurants-g551805-Tongue.html", walk:"https://www.walkhighlands.co.uk/sutherland/sandwood-bay.shtml", castle:null, nature:"https://www.walkhighlands.co.uk/sutherland/sandwood-bay.shtml", museum:null, transport:null }
   },
   {
-    day: "Mer 4 Mar",
-    short: "4",
-    dayShort: "MER",
-    from: "Tongue",
-    to: "Tongue (repos)",
-    km: 0,
-    h: 0,
-    hotel: "Tongue Hotel",
-    hotelUrl: "https://www.tonguehotel.co.uk/",
-    lat: 58.4807, lng: -4.4204,
-    pois: ["Smoo Cave", "Kyle of Tongue"],
-    tiles: {
-      hotel: "https://www.tonguehotel.co.uk/",
-      resto: "https://www.tripadvisor.fr/Restaurants-g551805-Tongue_Scottish_Highlands_Scotland.html",
-      walk: "https://www.walkhighlands.co.uk/sutherland/smoo-cave.shtml",
-      castle: null,
-      nature: "https://www.visitscotland.com/info/see-do/smoo-cave-p247751",
-      museum: null,
-      transport: null
-    },
-    notes: "Journée explorations locales. La Smoo Cave est impressionnante, et la vue sur Kyle of Tongue inoubliable."
+    dayLabel:"Mer 4 Mar", dayShort:"4/3", from:"Tongue", to:"Tongue · Explorations",
+    km:0, h:0, hotel:"Tongue Hotel", hotelUrl:"https://www.tonguehotel.co.uk/",
+    lat:58.4807, lng:-4.4204,
+    pois:["Smoo Cave","Kyle of Tongue","Cape Wrath"],
+    notes:"Journée locale. La Smoo Cave est impressionnante et la vue sur Kyle of Tongue est magique.",
+    tiles:{ hotel:"https://www.tonguehotel.co.uk/", resto:"https://www.tripadvisor.fr/Restaurants-g551805-Tongue.html", walk:"https://www.walkhighlands.co.uk/sutherland/smoo-cave.shtml", castle:null, nature:"https://www.visitscotland.com/info/see-do/smoo-cave-p247751", museum:null, transport:null }
   },
   {
-    day: "Jeu 5 Mar",
-    short: "5",
-    dayShort: "JEU",
-    from: "Tongue",
-    to: "Inverness",
-    km: 190,
-    h: 3,
-    hotel: "Lochardil House",
-    hotelUrl: "https://www.lochardilhouse.co.uk/",
-    lat: 57.4778, lng: -4.2247,
-    pois: ["Dunrobin Castle", "Dornoch"],
-    tiles: {
-      hotel: "https://www.lochardilhouse.co.uk/",
-      resto: "https://www.tripadvisor.fr/Restaurants-g186543-Inverness_Scottish_Highlands_Scotland.html",
-      walk: "https://www.walkhighlands.co.uk/inverness/",
-      castle: "https://www.dunrobincastle.co.uk/",
-      nature: null,
-      museum: "https://www.inverness-museum.com/",
-      transport: null
-    },
-    notes: "Retour vers Inverness via l'est. Arrêt à Dunrobin Castle, le plus grand château des Highlands."
+    dayLabel:"Jeu 5 Mar", dayShort:"5/3", from:"Tongue", to:"Inverness",
+    km:190, h:3, hotel:"Lochardil House", hotelUrl:"https://www.lochardilhouse.co.uk/",
+    lat:57.4778, lng:-4.2247,
+    pois:["Dunrobin Castle","Dornoch Cathedral"],
+    notes:"Retour vers le sud via la côte est. Arrêt à Dunrobin Castle, le plus grand château des Highlands.",
+    tiles:{ hotel:"https://www.lochardilhouse.co.uk/", resto:"https://www.tripadvisor.fr/Restaurants-g186543-Inverness.html", walk:"https://www.walkhighlands.co.uk/inverness/", castle:"https://www.dunrobincastle.co.uk/", nature:null, museum:"https://www.inverness-museum.com/", transport:null }
   },
   {
-    day: "Ven 6 Mar",
-    short: "6",
-    dayShort: "VEN",
-    from: "Inverness",
-    to: "Edinburgh",
-    km: 250,
-    h: 3,
-    hotel: "Ibis Edinburgh",
-    hotelUrl: "https://all.accor.com/hotel/6444/index.fr.shtml",
-    lat: 55.9533, lng: -3.1883,
-    pois: ["Whisky Bar", "Royal Mile", "Edinburgh Castle"],
-    tiles: {
-      hotel: "https://all.accor.com/hotel/6444/index.fr.shtml",
-      resto: "https://www.tripadvisor.fr/Restaurants-g186525-Edinburgh_Scotland.html",
-      walk: "https://www.walkhighlands.co.uk/lothian/",
-      castle: "https://www.edinburghcastle.scot/",
-      nature: "https://www.holyrood.info/",
-      museum: "https://www.nms.ac.uk/national-museum-of-scotland/",
-      transport: null
-    },
-    notes: "Arrivée à Edinburgh ! Soirée sur le Royal Mile, whisky bar, atmosphère unique."
+    dayLabel:"Ven 6 Mar", dayShort:"6/3", from:"Inverness", to:"Edinburgh",
+    km:250, h:3, hotel:"Ibis Edinburgh", hotelUrl:"https://all.accor.com/hotel/6444/index.fr.shtml",
+    lat:55.9533, lng:-3.1883,
+    pois:["Royal Mile","Edinburgh Castle","Whisky Bar","Holyrood"],
+    notes:"Arrivée à Edinburgh ! Soirée sur le Royal Mile, whisky bar, l'atmosphère est unique.",
+    tiles:{ hotel:"https://all.accor.com/hotel/6444/index.fr.shtml", resto:"https://www.tripadvisor.fr/Restaurants-g186525-Edinburgh.html", walk:"https://www.walkhighlands.co.uk/lothian/", castle:"https://www.edinburghcastle.scot/", nature:"https://www.holyrood.info/", museum:"https://www.nms.ac.uk/national-museum-of-scotland/", transport:null }
   },
   {
-    day: "Sam 7 Mar",
-    short: "7",
-    dayShort: "SAM",
-    from: "Edinburgh",
-    to: "Cambridge",
-    km: 570,
-    h: 6,
-    hotel: "À confirmer",
-    hotelUrl: "https://www.booking.com/city/gb/cambridge.fr.html",
-    lat: 52.2053, lng: 0.1218,
-    pois: ["Route retour", "Cambridge"],
-    tiles: {
-      hotel: "https://www.booking.com/city/gb/cambridge.fr.html",
-      resto: "https://www.tripadvisor.fr/Restaurants-g186225-Cambridge_Cambridgeshire_England.html",
-      walk: "https://www.visitcambridge.org/things-to-do/punting/",
-      castle: null,
-      nature: null,
-      museum: "https://www.fitzmuseum.cam.ac.uk/",
-      transport: "https://www.google.com/maps/dir/Edinburgh/Cambridge"
-    },
-    notes: "Grande route de retour vers le sud. Nuit à Cambridge."
+    dayLabel:"Sam 7 Mar", dayShort:"7/3", from:"Edinburgh", to:"Cambridge",
+    km:570, h:6, hotel:"À confirmer", hotelUrl:"https://www.booking.com/city/gb/cambridge.fr.html",
+    lat:52.2053, lng:0.1218,
+    pois:["Route retour","Cambridge"],
+    notes:"Grande route de retour vers le sud via l'Angleterre.",
+    tiles:{ hotel:"https://www.booking.com/city/gb/cambridge.fr.html", resto:"https://www.tripadvisor.fr/Restaurants-g186225-Cambridge.html", walk:"https://www.visitcambridge.org/", castle:null, nature:null, museum:"https://www.fitzmuseum.cam.ac.uk/", transport:null }
   },
   {
-    day: "Dim 8 Mar",
-    short: "8",
-    dayShort: "DIM",
-    from: "Cambridge",
-    to: "Genval",
-    km: 190 + 226,
-    h: 4.5,
-    hotel: "Maison 🏡",
-    hotelUrl: null,
-    lat: 50.6292, lng: 4.5833,
-    pois: ["Folkestone → Calais", "Retour Genval"],
-    tiles: {
-      hotel: null,
-      resto: null,
-      walk: null,
-      castle: null,
-      nature: null,
-      museum: null,
-      transport: "https://www.eurotunnel.com/fr/"
-    },
-    notes: "Retour en Belgique via l'Eurotunnel. Fin d'un beau voyage !"
+    dayLabel:"Dim 8 Mar", dayShort:"8/3", from:"Cambridge", to:"Genval 🏡",
+    km:416, h:4.5, hotel:"Maison", hotelUrl:null,
+    lat:50.6292, lng:4.5833,
+    pois:["Folkestone → Calais","Eurotunnel","Retour Genval"],
+    notes:"Retour en Belgique via l'Eurotunnel. Fin d'un beau voyage !",
+    tiles:{ hotel:null, resto:null, walk:null, castle:null, nature:null, museum:null, transport:"https://www.eurotunnel.com/fr/" }
   }
 ];
 
-// ══════════════════════════════════════
-// PLANNING
-// ══════════════════════════════════════
-let currentStep = 0;
+const TILE_CONFIG = {
+  hotel:     { emoji:'🏨', name:'Hébergement', cls:'t-hotel' },
+  resto:     { emoji:'🍽️', name:'Restaurants', cls:'t-resto' },
+  walk:      { emoji:'🥾', name:'Balades', cls:'t-walk' },
+  castle:    { emoji:'🏰', name:'Châteaux', cls:'t-castle' },
+  nature:    { emoji:'🌊', name:'Nature & Plages', cls:'t-nature' },
+  museum:    { emoji:'🏛️', name:'Musées', cls:'t-museum' },
+  transport: { emoji:'🚢', name:'Transports', cls:'t-transport' }
+};
 
-function renderSidebar() {
-  const sidebar = document.querySelector('.steps-sidebar');
-  const inner = steps.map((s, i) => `
-    <div class="step-item ${i === currentStep ? 'active' : ''}" onclick="selectStep(${i})">
-      <div class="step-num">${s.short}<small>${s.dayShort}</small></div>
-      <div>
-        <div class="step-name">${s.to}</div>
-        <div class="step-from">Depuis ${s.from}</div>
+// ── STATE ──
+let currentStep = 0;
+let planView = 'detail';
+let mapReady = false;
+let mapInstance = null;
+
+// ══════════════════════════════════════════════════
+// PLANNING
+// ══════════════════════════════════════════════════
+function renderStepHero(i) {
+  const s = steps[i];
+  document.getElementById('step-hero-content').innerHTML = `
+    <div class="step-hero">
+      <div class="hero-day-label">${s.dayLabel}</div>
+      <div class="hero-title">${s.to}</div>
+      <div class="hero-from">Depuis ${s.from}</div>
+      ${s.km > 0 ? `
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-val">${s.km}</div><div class="hstat-lbl">km</div></div>
+        <div class="hstat"><div class="hstat-val">${s.h}h</div><div class="hstat-lbl">route</div></div>
+        ${s.hotel ? `<div class="hstat"><div class="hstat-val">🏨</div><div class="hstat-lbl">${s.hotel.split(' ')[0]}</div></div>` : ''}
+      </div>` : `
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-val">🏠</div><div class="hstat-lbl">Étape repos</div></div>
+        ${s.hotel ? `<div class="hstat"><div class="hstat-val">🏨</div><div class="hstat-lbl">${s.hotel.split(' ')[0]}</div></div>` : ''}
+      </div>`}
+      <div class="hero-notes">${s.notes}</div>
+    </div>
+    ${s.pois.length ? `
+    <div class="pois-row">
+      ${s.pois.map(p=>`<div class="poi-pill">📍 ${p}</div>`).join('')}
+    </div>` : ''}
+    <div class="section-heading">Ressources</div>
+  `;
+
+  const tiles = Object.entries(s.tiles)
+    .filter(([,url]) => url)
+    .map(([type, url]) => {
+      const c = TILE_CONFIG[type];
+      return `
+        <a href="${url}" target="_blank" class="tile ${c.cls}">
+          <div class="tile-top"><div class="tile-emoji">${c.emoji}</div><div class="tile-name">${c.name}</div></div>
+          <div class="tile-desc">${getTileDesc(type, s)}</div>
+        </a>`;
+    }).join('');
+  document.getElementById('step-tiles-content').innerHTML = `<div class="tiles-grid">${tiles}</div><div style="height:80px"></div>`;
+}
+
+function getTileDesc(type, s) {
+  const d = {
+    hotel: s.hotel || 'Voir les hébergements disponibles',
+    resto: 'Restaurants & pubs locaux',
+    walk: 'Sentiers et randonnées de la région',
+    castle: 'Châteaux & monuments historiques',
+    nature: 'Plages, cascades, parcs naturels',
+    museum: 'Musées & expositions',
+    transport: 'Ferries, Eurotunnel & transports'
+  };
+  return d[type];
+}
+
+function renderStepsList() {
+  document.getElementById('steps-list-el').innerHTML = steps.map((s,i) => `
+    <div class="step-row ${i===currentStep?'active-step':''}" onclick="selectStep(${i})">
+      <div class="step-dot"><div class="step-dot-day">${s.dayShort}</div></div>
+      <div class="step-row-info">
+        <div class="step-row-to">${s.to}</div>
+        <div class="step-row-from">Depuis ${s.from}</div>
       </div>
-      <div class="step-km-badge">${s.km > 0 ? s.km + 'km' : '🏠'}<small>${s.h > 0 ? s.h + 'h' : 'Journée'}</small></div>
+      <div>
+        <div class="step-row-km">${s.km > 0 ? s.km+' km' : '🏠'}</div>
+        <div class="step-row-h">${s.h > 0 ? s.h+'h route' : 'Journée'}</div>
+      </div>
+      <div class="step-arrow">›</div>
     </div>
   `).join('');
-  sidebar.innerHTML = '<div class="sidebar-title">📍 Étapes du voyage</div>' + inner;
-}
-
-function tileName(type) {
-  const names = { hotel:'Hébergement', resto:'Restaurants', walk:'Balades', castle:'Châteaux & Sites', nature:'Plages & Nature', museum:'Musées', transport:'Transports' };
-  return names[type];
-}
-function tileIcon(type) {
-  const icons = { hotel:'🏨', resto:'🍽️', walk:'🥾', castle:'🏰', nature:'🌊', museum:'🏛️', transport:'🚢' };
-  return icons[type];
-}
-function tileClass(type) {
-  return 't-' + type;
-}
-function tileDesc(type, s) {
-  const descs = {
-    hotel: s.hotel || 'Voir les hébergements',
-    resto: 'Restaurants & pubs locaux',
-    walk: 'Sentiers & randonnées',
-    castle: 'Châteaux & monuments historiques',
-    nature: 'Plages, cascades & parcs',
-    museum: 'Musées & expositions',
-    transport: 'Ferries, tunnels & transports'
-  };
-  return descs[type];
-}
-
-function renderDetail(i) {
-  const s = steps[i];
-  const panel = document.querySelector('.step-detail-panel');
-
-  const tileHTML = Object.entries(s.tiles).map(([type, url]) => {
-    if (!url) return '';
-    return `
-      <a href="${url}" target="_blank" class="tile ${tileClass(type)}">
-        <div class="tile-icon">${tileIcon(type)}</div>
-        <div class="tile-body">
-          <strong>${tileName(type)}</strong>
-          <span>${tileDesc(type, s)}</span>
-        </div>
-      </a>
-    `;
-  }).join('');
-
-  const poiHTML = s.pois.length ? `
-    <div class="poi-block">
-      <div class="tiles-section-title">⭐ Points d'intérêt</div>
-      <div class="poi-list">${s.pois.map(p => `<span class="poi-chip">${p}</span>`).join('')}</div>
-    </div>
-  ` : '';
-
-  panel.innerHTML = `
-    <div class="detail-header">
-      <div class="detail-day-label">${s.day}</div>
-      <div class="detail-title">${s.to}</div>
-      <div class="detail-subtitle">Depuis ${s.from}</div>
-    </div>
-    ${s.km > 0 ? `
-    <div class="detail-stats">
-      <div class="dstat"><strong>${s.km} km</strong><span>Distance</span></div>
-      <div class="dstat"><strong>${s.h}h</strong><span>Conduite</span></div>
-      ${s.hotel ? `<div class="dstat"><strong>🏨</strong><span>${s.hotel.split(',')[0]}</span></div>` : ''}
-    </div>` : ''}
-    <p style="margin-bottom:20px; color:var(--mist); font-size:0.85rem; line-height:1.6;">${s.notes}</p>
-    <div class="tiles-section-title">🗂️ Ressources par thème</div>
-    <div class="tiles-grid">${tileHTML}</div>
-    ${poiHTML}
-  `;
 }
 
 function selectStep(i) {
   currentStep = i;
-  renderSidebar();
-  renderDetail(i);
-  // scroll map
-  if (mapInstance) {
-    mapInstance.setView([steps[i].lat, steps[i].lng], 9);
-  }
+  renderStepHero(i);
+  renderStepsList();
+  setPlanView('detail');
+  document.getElementById('plan-detail').scrollTop = 0;
+  document.getElementById('tab-planning').scrollTop = 0;
+  if (mapInstance) mapInstance.setView([steps[i].lat, steps[i].lng], 9);
 }
 
-// ══════════════════════════════════════
+function setPlanView(v) {
+  planView = v;
+  document.getElementById('plan-detail').style.display = v==='detail' ? 'block' : 'none';
+  document.getElementById('plan-list').style.display   = v==='list'   ? 'block' : 'none';
+  document.querySelectorAll('.vsw-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && v==='detail') || (i===1 && v==='list'));
+  });
+  if (v==='list') renderStepsList();
+}
+
+// ══════════════════════════════════════════════════
 // MAP
-// ══════════════════════════════════════
-let mapInstance = null;
-let mapInitialized = false;
-
+// ══════════════════════════════════════════════════
 function initMap() {
-  if (mapInitialized) return;
-  mapInitialized = true;
+  if (mapReady) { setTimeout(()=>mapInstance.invalidateSize(true),150); return; }
+  mapReady = true;
+  const el = document.getElementById('leaflet-map');
+  el.style.height = (window.innerHeight - 56 - 60) + 'px';
 
-  // Check if Leaflet loaded
-  if (typeof L === 'undefined') {
-    document.getElementById('leaflet-map').style.display = 'none';
-    document.getElementById('map-fallback').style.display = 'block';
-    return;
-  }
-
-  try {
-  mapInstance = L.map('leaflet-map').setView([57.0, -4.5], 6);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 18
+  mapInstance = L.map('leaflet-map', { zoomControl:false }).setView([57.2, -4.8], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap', maxZoom:18
   }).addTo(mapInstance);
 
-  // Route line
-  const coords = steps.filter(s => s.km > 0 || s === steps[steps.length - 1]).map(s => [s.lat, s.lng]);
-  L.polyline(coords, { color: '#c9a84c', weight: 3, opacity: 0.8, dashArray: '8,5' }).addTo(mapInstance);
+  L.control.zoom({ position:'bottomright' }).addTo(mapInstance);
 
-  // Markers
-  steps.forEach((s, i) => {
-    const color = i === 0 || i === steps.length - 1 ? '#c9a84c' : '#1a3a2a';
-    const marker = L.circleMarker([s.lat, s.lng], {
-      radius: 8,
-      fillColor: color,
-      color: '#fff',
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 1
+  const coords = steps.map(s=>[s.lat,s.lng]);
+  L.polyline(coords,{color:'#c9a84c',weight:3,opacity:0.85,dashArray:'8,6'}).addTo(mapInstance);
+
+  steps.forEach((s,i) => {
+    const isEndpoint = i===0||i===steps.length-1;
+    const m = L.circleMarker([s.lat,s.lng],{
+      radius: isEndpoint ? 9 : 7,
+      fillColor: isEndpoint ? '#c9a84c' : '#2d6b47',
+      color:'#fff', weight:2, fillOpacity:1
     }).addTo(mapInstance);
-
-    marker.bindPopup(`
-      <div style="font-family:Lato,sans-serif; min-width:180px;">
-        <strong style="color:#1a3a2a; font-size:1rem;">${s.to}</strong><br>
-        <span style="color:#7a9a8a; font-size:0.75rem;">${s.day}</span>
-        ${s.hotel ? `<br><span style="color:#8b3a1a;">🏨 ${s.hotel}</span>` : ''}
-        ${s.km > 0 ? `<br><span style="color:#c9a84c;">${s.km} km · ${s.h}h de route</span>` : ''}
-        <br><br>
-        ${s.pois.map(p => `<span style="background:#e5f0e9;color:#1a3a2a;padding:2px 7px;border-radius:50px;font-size:0.7rem;margin-right:3px;">${p}</span>`).join('')}
+    m.bindPopup(`
+      <div style="font-family:-apple-system,sans-serif;min-width:160px">
+        <strong style="color:#1a3a2a;font-size:0.95rem">${s.to}</strong><br>
+        <span style="color:#8aaa96;font-size:0.72rem">${s.dayLabel}</span>
+        ${s.hotel?`<br><span style="color:#c9a84c;font-size:0.75rem">🏨 ${s.hotel}</span>`:''}
+        ${s.km>0?`<br><span style="font-size:0.75rem">${s.km} km · ${s.h}h</span>`:''}
+        <br><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          ${s.pois.map(p=>`<span style="background:#e8f4ec;color:#1a3a2a;padding:2px 6px;border-radius:8px;font-size:0.65rem;font-weight:600">${p}</span>`).join('')}
+        </div>
       </div>
-    `);
-
-    marker.on('click', () => {
-      selectStep(i);
-      show('planning');
-    });
+    `,{maxWidth:220});
+    m.on('click',()=>{ selectStep(i); switchTabById('planning'); });
   });
 
-  // Legend
-  const legend = L.control({ position: 'bottomleft' });
-  legend.onAdd = function() {
-    const div = L.DomUtil.create('div');
-    div.innerHTML = `
-      <div style="background:rgba(13,31,23,0.9);color:#fff;padding:12px 16px;border-radius:10px;border:1px solid rgba(201,168,76,0.3);font-family:Lato,sans-serif;font-size:0.75rem;">
-        <div style="color:#c9a84c;font-weight:700;letter-spacing:1px;margin-bottom:8px;">ITINÉRAIRE</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div style="width:20px;height:3px;background:#c9a84c;border-radius:2px;"></div> Route</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div style="width:10px;height:10px;border-radius:50%;background:#1a3a2a;border:2px solid #fff;"></div> Étape nuit</div>
-        <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:50%;background:#c9a84c;border:2px solid #fff;"></div> Départ/Arrivée</div>
-      </div>
-    `;
-    return div;
-  };
-  legend.addTo(mapInstance);
-  } catch(e) {
-    console.error('Leaflet error:', e);
-    document.getElementById('leaflet-map').style.display = 'none';
-    document.getElementById('map-fallback').style.display = 'block';
-  }
+  setTimeout(()=>mapInstance.invalidateSize(true),300);
 }
 
-// ══════════════════════════════════════
+// ══════════════════════════════════════════════════
 // MÉTÉO
-// ══════════════════════════════════════
-const weatherLocations = [
-  { city: "Carlisle",      day: "Jeu 26 Fév", lat: 54.8951, lng: -2.9382 },
-  { city: "Fort William",  day: "Ven 27 Fév", lat: 56.8198, lng: -5.1052 },
-  { city: "Isle of Skye",  day: "Sam–Dim",    lat: 57.5822, lng: -6.2122 },
-  { city: "Ullapool",      day: "Lun 2 Mar",  lat: 57.8960, lng: -5.1589 },
-  { city: "Tongue",        day: "Mar–Mer",    lat: 58.4807, lng: -4.4204 },
-  { city: "Inverness",     day: "Jeu 5 Mar",  lat: 57.4778, lng: -4.2247 },
-  { city: "Edinburgh",     day: "Ven 6 Mar",  lat: 55.9533, lng: -3.1883 },
-  { city: "Cambridge",     day: "Sam 7 Mar",  lat: 52.2053, lng:  0.1218 }
+// ══════════════════════════════════════════════════
+const weatherLocs = [
+  {city:"Carlisle",      day:"Jeu 26 Fév", lat:54.8951, lng:-2.9382},
+  {city:"Fort William",  day:"Ven 27 Fév", lat:56.8198, lng:-5.1052},
+  {city:"Isle of Skye",  day:"Sam–Dim",    lat:57.5822, lng:-6.2122},
+  {city:"Ullapool",      day:"Lun 2 Mar",  lat:57.896,  lng:-5.1589},
+  {city:"Tongue",        day:"Mar–Mer",    lat:58.4807, lng:-4.4204},
+  {city:"Inverness",     day:"Jeu 5 Mar",  lat:57.4778, lng:-4.2247},
+  {city:"Edinburgh",     day:"Ven 6 Mar",  lat:55.9533, lng:-3.1883},
+  {city:"Cambridge",     day:"Sam 7 Mar",  lat:52.2053, lng:0.1218}
 ];
+const WMO={0:["☀️","Ciel dégagé"],1:["🌤️","Peu nuageux"],2:["⛅","Nuageux"],3:["☁️","Couvert"],45:["🌫️","Brouillard"],48:["🌫️","Brouillard givrant"],51:["🌦️","Bruine légère"],53:["🌦️","Bruine"],55:["🌧️","Bruine dense"],61:["🌧️","Pluie légère"],63:["🌧️","Pluie modérée"],65:["🌧️","Pluie forte"],71:["🌨️","Neige légère"],73:["🌨️","Neige"],75:["❄️","Neige forte"],80:["🌦️","Averses"],81:["🌧️","Averses mod."],82:["⛈️","Averses fortes"],85:["🌨️","Neige averses"],86:["❄️","Neige forte"],95:["⛈️","Orage"],96:["⛈️","Orage & grêle"],99:["⛈️","Orage fort"]};
 
-const WMO_CODES = {
-  0:  ["☀️","Ciel dégagé"],
-  1:  ["🌤️","Peu nuageux"], 2: ["⛅","Partiellement nuageux"], 3: ["☁️","Couvert"],
-  45: ["🌫️","Brouillard"], 48: ["🌫️","Brouillard givrant"],
-  51: ["🌦️","Bruine légère"], 53: ["🌦️","Bruine modérée"], 55: ["🌧️","Bruine dense"],
-  61: ["🌧️","Pluie légère"], 63: ["🌧️","Pluie modérée"], 65: ["🌧️","Pluie forte"],
-  71: ["🌨️","Neige légère"], 73: ["🌨️","Neige modérée"], 75: ["❄️","Neige forte"],
-  80: ["🌦️","Averses légères"], 81: ["🌧️","Averses modérées"], 82: ["⛈️","Averses fortes"],
-  85: ["🌨️","Averses de neige"], 86: ["❄️","Averses neige forte"],
-  95: ["⛈️","Orage"], 96: ["⛈️","Orage & grêle"], 99: ["⛈️","Orage fort & grêle"]
-};
-
-async function fetchWeather(loc) {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lng}`
-    + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code`
-    + `&wind_speed_unit=kmh&temperature_unit=celsius&timezone=Europe%2FLondon`;
-  const res = await fetch(url);
-  const data = await res.json();
-  const c = data.current;
-  const [icon, desc] = WMO_CODES[c.weather_code] || ["🌡️","Inconnu"];
-  return {
-    city: loc.city,
-    day: loc.day,
-    icon,
-    desc,
-    temp: Math.round(c.temperature_2m),
-    feel: Math.round(c.apparent_temperature),
-    wind: Math.round(c.wind_speed_10m) + " km/h",
-    hum: Math.round(c.relative_humidity_2m) + "%"
-  };
-}
-
-async function renderMeteo() {
-  const grid = document.getElementById('meteo-grid');
-  // Show skeleton loaders
-  grid.innerHTML = weatherLocations.map(l => `
-    <div class="meteo-card" style="opacity:0.5;">
-      <div class="mc-city">${l.city}</div>
-      <div class="mc-date">${l.day}</div>
-      <div class="mc-icon">⏳</div>
-      <div class="mc-temp">--°C</div>
-      <div class="mc-desc">Chargement...</div>
-    </div>
-  `).join('');
-
-  // Fetch all in parallel
-  const results = await Promise.allSettled(weatherLocations.map(fetchWeather));
-
-  grid.innerHTML = results.map((r, i) => {
-    const loc = weatherLocations[i];
-    if (r.status === 'rejected') {
-      return `
-        <div class="meteo-card" style="opacity:0.6;">
-          <div class="mc-city">${loc.city}</div>
-          <div class="mc-date">${loc.day}</div>
-          <div class="mc-icon">❌</div>
-          <div class="mc-desc">Données indisponibles</div>
-        </div>`;
-    }
+async function loadMeteo() {
+  const el = document.getElementById('meteo-cards');
+  el.innerHTML = weatherLocs.map(l=>`<div class="mc-skeleton" style="height:110px;border-radius:18px;"></div>`).join('');
+  const results = await Promise.allSettled(weatherLocs.map(async l=>{
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&wind_speed_unit=kmh&timezone=Europe%2FLondon`);
+    const d = await r.json();
+    const c = d.current;
+    const [icon,desc] = WMO[c.weather_code]||["🌡️","N/A"];
+    return {...l, icon, desc, temp:Math.round(c.temperature_2m), feel:Math.round(c.apparent_temperature), wind:Math.round(c.wind_speed_10m), hum:Math.round(c.relative_humidity_2m)};
+  }));
+  el.innerHTML = results.map((r,i)=>{
+    const l = weatherLocs[i];
+    if(r.status==='rejected') return `<div class="mc"><div class="mc-left"><div class="mc-city-name">${l.city}</div><div class="mc-trip-date">${l.day}</div><div style="color:#aaa;font-size:0.8rem">❌ Données indisponibles</div></div></div>`;
     const w = r.value;
     return `
-      <a href="https://open-meteo.com/" target="_blank" class="meteo-card">
-        <div class="mc-city">${w.city}</div>
-        <div class="mc-date">${w.day}</div>
-        <div class="mc-icon">${w.icon}</div>
-        <div class="mc-temp">${w.temp}°C</div>
-        <div class="mc-desc">${w.desc}</div>
-        <div class="mc-details">
-          <span>💨 ${w.wind}</span>
-          <span>💧 ${w.hum}</span>
-          <span>🌡️ Ressenti ${w.feel}°C</span>
+      <div class="mc">
+        <div class="mc-left">
+          <div class="mc-city-name">${w.city}</div>
+          <div class="mc-trip-date">${w.day}</div>
+          <div class="mc-conditions">
+            <div class="mc-icon">${w.icon}</div>
+            <div class="mc-desc-text">${w.desc}</div>
+          </div>
+          <div class="mc-pills">
+            <div class="mc-pill">💨 ${w.wind} km/h</div>
+            <div class="mc-pill">💧 ${w.hum}%</div>
+          </div>
         </div>
-      </a>`;
+        <div>
+          <div class="mc-temp-big">${w.temp}°</div>
+          <div class="mc-feel">Ressenti ${w.feel}°</div>
+        </div>
+      </div>`;
   }).join('');
 }
 
-// ══════════════════════════════════════
+// ══════════════════════════════════════════════════
 // CALENDRIER
-// ══════════════════════════════════════
-const tripDays = {
-  // Feb
-  "2026-02-26": { label: "Départ Genval", type: "gold" },
-  // March
-  "2026-02-27": { label: "→ Carlisle", type: "normal" },
-  "2026-02-28": { label: "→ Fort William", type: "normal" },
-  "2026-03-01": { label: "→ Skye", type: "normal" },
-  "2026-03-02": { label: "Skye tour", type: "normal" },
-  "2026-03-03": { label: "→ Ullapool", type: "normal" },
-  "2026-03-04": { label: "→ Tongue", type: "normal" },
-  "2026-03-05": { label: "Smoo Cave", type: "normal" },
-  "2026-03-06": { label: "→ Inverness", type: "normal" },
-  "2026-03-07": { label: "→ Edinburgh", type: "normal" },
-  "2026-03-08": { label: "→ Cambridge", type: "normal" },
-  "2026-03-09": { label: "Retour Genval", type: "gold" }
+// ══════════════════════════════════════════════════
+const TRIP = {
+  "2026-02-26":{label:"Départ",cls:"gold"},
+  "2026-02-27":{label:"→ Carlisle"},
+  "2026-02-28":{label:"→ Ft William"},
+  "2026-03-01":{label:"→ Skye"},
+  "2026-03-02":{label:"Skye tour"},
+  "2026-03-03":{label:"→ Ullapool"},
+  "2026-03-04":{label:"→ Tongue"},
+  "2026-03-05":{label:"Smoo Cave"},
+  "2026-03-06":{label:"→ Inverness"},
+  "2026-03-07":{label:"→ Edinburgh"},
+  "2026-03-08":{label:"→ Cambridge"},
+  "2026-03-09":{label:"Retour 🏡",cls:"gold"}
 };
+const DAY_IDX = {"2026-02-26":0,"2026-02-27":1,"2026-02-28":2,"2026-03-01":3,"2026-03-02":4,"2026-03-03":5,"2026-03-04":6,"2026-03-05":7,"2026-03-06":8,"2026-03-07":9,"2026-03-08":10,"2026-03-09":11};
 
-function buildCal(containerId, year, month) {
-  const container = document.getElementById(containerId);
-  const days = ['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
-  let html = days.map(d => `<div class="cal-hdr">${d}</div>`).join('');
-  
-  const firstDay = new Date(year, month - 1, 1);
-  let startDow = firstDay.getDay(); // 0=Sun
-  startDow = startDow === 0 ? 6 : startDow - 1; // convert to Mon=0
-  
-  for (let e = 0; e < startDow; e++) html += `<div class="cal-cell empty"></div>`;
-  
-  const daysInMonth = new Date(year, month, 0).getDate();
-  for (let d = 1; d <= daysInMonth; d++) {
-    const key = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const trip = tripDays[key];
-    html += `
-      <div class="cal-cell ${trip ? 'trip' : ''}" ${trip ? `onclick="goToDay('${key}')"` : ''}>
-        <div class="cal-num">${d}</div>
-        ${trip ? `<span class="cal-event-tag ${trip.type}">${trip.label}</span>` : ''}
-      </div>
-    `;
+function buildCal(id, y, m) {
+  const days=['L','M','M','J','V','S','D'];
+  let h = days.map(d=>`<div class="cal-day-hdr">${d}</div>`).join('');
+  let dow = new Date(y,m-1,1).getDay(); dow = dow===0?6:dow-1;
+  for(let e=0;e<dow;e++) h+=`<div class="cal-cell empty"></div>`;
+  const tot = new Date(y,m,0).getDate();
+  for(let d=1;d<=tot;d++){
+    const k=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const t=TRIP[k];
+    h+=`<div class="cal-cell ${t?'trip':''}" ${t?`onclick="calClick('${k}')"`:''}><div class="cal-num">${d}</div>${t?`<span class="cal-tag ${t.cls||''}">${t.label}</span>`:''}</div>`;
   }
-  container.innerHTML = html;
+  document.getElementById(id).innerHTML=h;
 }
 
-function goToDay(key) {
-  const map = {
-    "2026-02-26": 0,
-    "2026-02-27": 1,
-    "2026-02-28": 2,
-    "2026-03-01": 3,
-    "2026-03-02": 4,
-    "2026-03-03": 5,
-    "2026-03-04": 6,
-    "2026-03-05": 7,
-    "2026-03-06": 8,
-    "2026-03-07": 9,
-    "2026-03-08": 10,
-    "2026-03-09": 11
-  };
-  if (map[key] !== undefined) {
-    selectStep(map[key]);
-    show('planning');
-  }
+function calClick(k){
+  const i=DAY_IDX[k];
+  if(i!==undefined){ selectStep(i); switchTabById('planning'); }
 }
 
-// ══════════════════════════════════════
+// ══════════════════════════════════════════════════
 // NAVIGATION
-// ══════════════════════════════════════
-function show(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-
-  document.getElementById(id).classList.add('active');
-  const idx = ['planning','map-section','meteo','calendrier'].indexOf(id);
-  document.querySelectorAll('nav button')[idx].classList.add('active');
-
-  if (id === 'map-section') {
-    const mapEl = document.getElementById('leaflet-map');
-    mapEl.style.height = (window.innerHeight - 60) + 'px';
-    mapEl.style.width = '100%';
-    if (!mapInitialized) {
-      setTimeout(() => { initMap(); }, 250);
-    } else {
-      setTimeout(() => { mapInstance.invalidateSize(true); }, 100);
-    }
-  }
+// ══════════════════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='map') setTimeout(initMap, 50);
+}
+function switchTabById(id) {
+  const idx = ['planning','map','meteo','cal'].indexOf(id);
+  if(idx>=0) switchTab(id, document.querySelectorAll('.tab-btn')[idx]);
 }
 
-// ══════════════════════════════════════
+// ══════════════════════════════════════════════════
 // INIT
-// ══════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  renderSidebar();
-  renderDetail(0);
-  renderMeteo(); // async, loads live weather
-  buildCal('cal-feb', 2026, 2);
-  buildCal('cal-mar', 2026, 3);
-  buildCal('cal-apr', 2026, 4);
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Splash hide after load animation
+  setTimeout(()=>{ document.getElementById('splash').classList.add('hide'); }, 1600);
+
+  // Init
+  renderStepHero(0);
+  buildCal('cal-feb',2026,2);
+  buildCal('cal-mar',2026,3);
+  loadMeteo();
 });
 </script>
 </body>
